@@ -1,0 +1,14 @@
+_target_: docvce.models.task_modules.latent_classification_module.latent_classification_module.LatentClassificationModule
+_partial_: true
+defaults:
+- _self_
+- /torch_model_builder@torch_model_builder.vae: diffusers
+- /torch_model_builder@torch_model_builder.classifier: local
+checkpoint_configs: null
+dataset_metadata: null
+tb_logger: null
+input_key: image
+latent_input_key: latent_image
+use_precomputed_latents_if_available: false
+features_scale_factor: null
+compute_scale_factor: false

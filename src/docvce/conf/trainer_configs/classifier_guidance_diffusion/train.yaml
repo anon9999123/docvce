@@ -1,0 +1,143 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners._atria_trainer.AtriaTrainer
+_zen_exclude:
+- hydra
+- test_run
+- experiment_name
+- image_size
+- dir_name_filter
+- objective
+- noise_schedule
+- snr_gamma
+- train_batch_size
+- eval_batch_size
+- gray_to_rgb
+- backend
+- n_devices
+defaults:
+# defines the dataset
+- override /data_module@data_module: ${oc.env:TASK}/${oc.env:DATASET}_override_custom
+# defines the train/val splitter if validation is does not exist
+# - override /train_validation_splitter@data_module.train_validation_splitter: default
+# defines the task module which is unconditional diffusion
+- override /task_module@task_module: diffusion
+# defines the model builder dict which maps reverse_diffusion_model -> diffusers library
+- override /torch_model_builder@task_module.torch_model_builder.reverse_diffusion_model: diffusers
+# defines the training engine config
+- override /engine@training_engine: default_training_engine
+# defines the validation engine config
+- override /engine@validation_engine: generative_modeling_validation_engine
+# defines the visualization engine config
+- override /engine@visualization_engine: default_visualization_engine
+# defines the test engine config
+- override /engine@test_engine: generative_modeling_test_engine
+# defines the optimizer
+- override /optimizer@training_engine.optimizers: adam
+# defines the learning rate scheduler
+- override /lr_scheduler@training_engine.lr_schedulers: cosine_annealing_lr
+- _self_
+
+data_module:
+  # train_validation_splitter:
+  #   seed: 42
+  #   split_ratio: 0.995
+  #   shuffle: true
+
+  max_val_samples: 5000 # this is for FID
+
+task_module:
+  loss_type: l2
+  enable_xformers_memory_efficient_attention: false
+  gradient_checkpointing: false
+  objective: ${objective}
+  diffusion_steps: 1000
+  inference_diffusion_steps: 200
+  noise_schedule: ${noise_schedule}
+  snr_gamma: ${snr_gamma}
+  clip_sample: true
+  clip_sample_range: 1.0
+  unnormalize_output: true
+  enable_class_conditioning: True
+  use_fixed_class_labels: True
+  use_cfg: True
+  cond_drop_prob: 0.1
+  guidance_scale: 1.0
+  custom_generated_class_label: null
+
+training_engine:
+  max_epochs: 40
+  engine_step:
+    non_blocking_tensor_conv: true
+    with_amp: true
+  gradient_config:
+    gradient_accumulation_steps: 1
+  logging:
+    refresh_rate: 10
+    profile_time: false
+  model_ema_config:
+    enabled: true
+    momentum: 0.0001
+    update_every: 1
+  model_checkpoint_config:
+    dir: checkpoints
+    n_saved: 1
+    n_best_saved: 1
+    monitored_metric: val/loss
+    mode: min
+    name_prefix: ''
+    save_weights_only: false
+    load_weights_only: false
+    every_n_steps: null
+    every_n_epochs: 1
+    load_best_checkpoint_resume: false
+    resume_from_checkpoint: true
+    resume_checkpoint_file: null
+  test_run: ${test_run}
+  optimizers:
+    lr: 1.0e-4
+
+test_engine:
+  test_run: ${test_run}
+
+validation_engine:
+  validate_on_start: false
+  validate_every_n_epochs: 20
+  use_ema_for_val: true
+  test_run: ${test_run}
+
+visualization_engine:
+  visualize_on_start: false
+  visualize_every_n_epochs: 1
+  use_ema_for_visualize: false
+
+output_dir: ./output
+seed: 42
+deterministic: false
+backend: nccl
+n_devices: 1
+do_train: true
+do_validation: false
+do_visualization: true
+do_test: true
+
+# additional override params that are should go inside _zen_exclude
+test_run: false
+experiment_name: classifier_guidance_diffusion
+image_size: 256
+objective: epsilon # one of epsilon, sample, v_prediction
+noise_schedule: linear
+snr_gamma: null
+gray_to_rgb: true
+train_batch_size: 32
+eval_batch_size: 32
+vis_batch_size: 16
+
+hydra:
+  run:
+    dir: "${output_dir}/atria_trainer/\
+          ${resolve_dir_name:${data_module.dataset_name}}/\
+          ${experiment_name}"
+  output_subdir: hydra
+  job:
+    chdir: false

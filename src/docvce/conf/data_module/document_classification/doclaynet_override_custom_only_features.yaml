@@ -1,0 +1,62 @@
+defaults:
+- document_classification/doclaynet@_here_
+- /data_transform@dataset_cacher.preprocess_data_transforms.train: image_preprocess
+- /data_transform@dataset_cacher.preprocess_data_transforms.evaluation: image_preprocess
+- /data_transform@runtime_data_transforms.train.doclaynet_label_transform: doclaynet_label_transform
+- /data_transform@runtime_data_transforms.evaluation.doclaynet_label_transform: doclaynet_label_transform
+- _self_
+
+dataset_dir: ${oc.env:DATASET_ROOT_DIR}/doclaynet
+train_dataloader_builder:
+  num_workers: 8
+  batch_size: ${train_batch_size}
+  persistent_workers: true
+  collate_fn:
+    batch_filter_key_map:
+      latent_image: latent_image
+      label: label # our model expects label
+      __key__: __key__
+evaluation_dataloader_builder:
+  num_workers: 8
+  batch_size: ${eval_batch_size}
+  collate_fn:
+    batch_filter_key_map:
+      latent_image: latent_image
+      label: label # our model expects label
+      __key__: __key__
+dataset_cacher:
+  cache_dir: ${data_module.dataset_dir}/.atria/
+  num_processes: 8
+  attach_features_with_key: ${features_key}
+  cache_file_name: ${image_size}x${image_size}
+  preprocess_data_transforms:
+    train:
+      rescale_size:
+        - ${image_size}
+        - ${image_size}
+    evaluation:
+      rescale_size:
+        - ${image_size}
+        - ${image_size}
+
+runtime_data_transforms:
+  train:
+    doclaynet_label_transform:
+      key: label
+      labels:
+        - financial_reports
+        - scientific_articles
+        - laws_and_regulations
+        - government_tenders
+        - manuals
+        - patents
+  evaluation:
+    doclaynet_label_transform:
+      key: label
+      labels:
+        - financial_reports
+        - scientific_articles
+        - laws_and_regulations
+        - government_tenders
+        - manuals
+        - patents

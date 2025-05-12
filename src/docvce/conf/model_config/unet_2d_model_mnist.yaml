@@ -1,0 +1,19 @@
+defaults:
+- diffusers/unet_2d_model@_here_
+- _self_
+
+sample_size:
+  - 28
+  - 28
+in_channels: 1
+out_channels: 1
+down_block_types:
+- DownBlock2D
+- AttnDownBlock2D
+up_block_types:
+- AttnUpBlock2D
+- UpBlock2D
+block_out_channels:
+- 224
+- 448
+

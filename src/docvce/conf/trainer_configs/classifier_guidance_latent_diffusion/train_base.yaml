@@ -1,0 +1,158 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners._atria_trainer.AtriaTrainer
+_zen_exclude:
+- hydra
+- test_run
+- experiment_name
+- image_size
+- dir_name_filter
+- objective
+- noise_schedule
+- snr_gamma
+- train_batch_size
+- eval_batch_size
+- gray_to_rgb
+- backend
+- n_devices
+- pretrained_checkpoint_path
+- vae_checkpoint_path
+- vae_state_dict_path
+defaults:
+# defines the task module which is unconditional diffusion
+- override /task_module@task_module: latent_diffusion
+# defines the model builder dict which maps reverse_diffusion_model -> diffusers library
+- override /torch_model_builder@task_module.torch_model_builder.reverse_diffusion_model: diffusers
+- override /torch_model_builder@task_module.torch_model_builder.vae: local
+# defines the training engine config
+- override /engine@training_engine: default_training_engine
+# defines the validation engine config
+- override /engine@validation_engine: generative_modeling_validation_engine
+# defines the visualization engine config
+- override /engine@visualization_engine: default_visualization_engine
+# defines the test engine config
+- override /engine@test_engine: generative_modeling_test_engine
+# defines the optimizer
+- override /optimizer@training_engine.optimizers: adam
+# defines the learning rate scheduler
+- override /lr_scheduler@training_engine.lr_schedulers: cosine_annealing_lr
+- _self_
+
+task_module:
+  loss_type: l2
+  enable_xformers_memory_efficient_attention: true
+  gradient_checkpointing: true
+  objective: ${objective}
+  diffusion_steps: 1000
+  inference_diffusion_steps: 200
+  # scheduler: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+  scheduler: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+  noise_schedule: ${noise_schedule}
+  snr_gamma: ${snr_gamma}
+  clip_sample: false
+  clip_sample_range: 1.0
+  unnormalize_output: true
+  # class conditioning args
+  enable_class_conditioning: True
+  use_fixed_class_labels: True
+  use_cfg: True
+  cond_drop_prob: 0.1
+  guidance_scale: 1.0
+  custom_generated_class_label: null
+  use_precomputed_latents_if_available: True
+  compute_scale_factor: True
+  torch_model_builder:
+    vae:
+      model_name: atria.models.autoencoding.compvis_vae.CompvisAutoencoderKL
+      pretrained: false
+      is_frozen: true
+      strict: false
+  checkpoint_configs:
+    - checkpoint_path: ${vae_checkpoint_path}
+      checkpoint_state_dict_path: ${vae_state_dict_path}
+      model_state_dict_path: "non_trainable_models.vae"
+      load_checkpoint_strict: False
+    - checkpoint_path: ${pretrained_checkpoint_path}
+      checkpoint_state_dict_path: task_module.trainable_models.reverse_diffusion_model
+      model_state_dict_path: trainable_models.reverse_diffusion_model
+      load_checkpoint_strict: false
+
+training_engine:
+  max_epochs: 40
+  engine_step:
+    non_blocking_tensor_conv: true
+    with_amp: true
+  gradient_config:
+    gradient_accumulation_steps: 1
+  logging:
+    refresh_rate: 10
+    profile_time: false
+  model_ema_config:
+    enabled: true
+    momentum: 0.0001
+    update_every: 1
+  model_checkpoint_config:
+    dir: checkpoints
+    n_saved: 1
+    n_best_saved: 1
+    monitored_metric: val/loss
+    mode: min
+    name_prefix: ''
+    save_weights_only: false
+    load_weights_only: false
+    every_n_steps: 1000
+    every_n_epochs: null
+    load_best_checkpoint_resume: false
+    resume_from_checkpoint: true
+    resume_checkpoint_file: null
+  test_run: ${test_run}
+  optimizers:
+    lr: 1.0e-4
+
+test_engine:
+  test_run: ${test_run}
+
+validation_engine:
+  validate_on_start: false
+  validate_every_n_epochs: 9999
+  use_ema_for_val: true
+  test_run: ${test_run}
+
+visualization_engine:
+  visualize_on_start: false
+  visualize_every_n_epochs: 1
+  use_ema_for_visualize: false
+
+output_dir: ./output
+seed: 42
+deterministic: false
+backend: nccl
+n_devices: 1
+do_train: true
+do_validation: true
+do_visualization: true
+do_test: true
+
+# additional override params that are should go inside _zen_exclude
+test_run: false
+experiment_name: classifier_guidance
+image_size: 256
+objective: epsilon # one of epsilon, sample, v_prediction
+noise_schedule: linear
+snr_gamma: null
+gray_to_rgb: true
+train_batch_size: 256
+eval_batch_size: 64
+feature_extraction_batch_size: 4
+pretrained_checkpoint_path: ""
+vae_checkpoint_path: pretrained_models/klf4_pretrained_iitcidp_146000.pt
+vae_state_dict_path: ema_model.encoder_decoder_model
+
+hydra:
+  run:
+    dir: "${output_dir}/atria_trainer/\
+          ${resolve_dir_name:${data_module.dataset_name}}/\
+          ${experiment_name}"
+  output_subdir: hydra
+  job:
+    chdir: false

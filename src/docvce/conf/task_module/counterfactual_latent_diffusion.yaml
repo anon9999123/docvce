@@ -1,0 +1,33 @@
+_target_: docvce.models.task_modules.diffusion.counterfactual_latent_diffusion.CounterfactualLatentDiffusionModule
+_partial_: true
+defaults:
+- _self_
+- /torch_model_builder@torch_model_builder.reverse_diffusion_model: diffusers
+- /torch_model_builder@torch_model_builder.vae: diffusers
+- /torch_model_builder@torch_model_builder.classifier: local
+checkpoint_configs: null
+dataset_metadata: null
+tb_logger: null
+diffusion_steps: 1000
+inference_diffusion_steps: 200
+enable_class_conditioning: false
+use_cfg: false
+latent_input_key: latent_image
+use_precomputed_latents_if_available: false
+features_scale_factor: null
+sampling_type: guided_ddpm
+target_query_labels: null
+target_query_labels_path: null
+start_timestep: 60
+guidance_scale: 1.0
+use_logits: false
+classifier_gradient_weight: 0.6
+distance_gradient_weight: 0.2
+noise_gradient_weight: 0.0
+enable_gradients_renormalization: true
+use_latent_space_distance: true
+use_cfg_projection: true
+cone_projection_type: chunked_zero
+cone_projection_angle_threshold: 45.0
+cone_projection_chunk_size: 1
+enable_tensorboard_logging: false

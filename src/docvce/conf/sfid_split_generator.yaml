@@ -1,0 +1,22 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners.atria_data_processor.AtriaDataProcessor
+_zen_exclude:
+- hydra
+- image_size
+- gray_to_rgb
+- train_batch_size
+- eval_batch_size
+- real_samples_dir_path
+- concat_test_and_train
+defaults:
+- atria_data_processor@_here_
+- override /data_module@data_module: ${oc.env:TASK}/${oc.env:DATASET}_override_custom
+- _self_
+
+image_size: 256
+gray_to_rgb: True
+eval_batch_size: 4
+train_batch_size: 4
+real_samples_dir_path: ???
+concat_test_and_train: False

@@ -1,0 +1,241 @@
+Class1,Class2,Similarity
+letter,form,0.6199133992195129
+letter,email,0.6857650876045227
+letter,handwritten,0.6183469295501709
+letter,advertisement,0.5707101225852966
+letter,scientific report,0.6251165270805359
+letter,scientific publication,0.6334356665611267
+letter,specification,0.5431464910507202
+letter,file folder,0.5933434367179871
+letter,news article,0.6122908592224121
+letter,budget,0.5678080320358276
+letter,invoice,0.6140902042388916
+letter,presentation,0.6332848072052002
+letter,questionnaire,0.5951840281486511
+letter,resume,0.6450578570365906
+letter,memo,0.7037961483001709
+form,letter,0.6199133992195129
+form,email,0.6537764072418213
+form,handwritten,0.5932356715202332
+form,advertisement,0.5492579340934753
+form,scientific report,0.5856707096099854
+form,scientific publication,0.5913025736808777
+form,specification,0.5304250121116638
+form,file folder,0.5789587497711182
+form,news article,0.5714969038963318
+form,budget,0.5630419850349426
+form,invoice,0.6110743284225464
+form,presentation,0.5834322571754456
+form,questionnaire,0.5836363434791565
+form,resume,0.5935300588607788
+form,memo,0.622814953327179
+email,letter,0.6857650876045227
+email,form,0.6537764072418213
+email,handwritten,0.6592729091644287
+email,advertisement,0.6061352491378784
+email,scientific report,0.6400583386421204
+email,scientific publication,0.662961483001709
+email,specification,0.5578607320785522
+email,file folder,0.7043502330780029
+email,news article,0.640723705291748
+email,budget,0.605453372001648
+email,invoice,0.6414969563484192
+email,presentation,0.6582608222961426
+email,questionnaire,0.6171932220458984
+email,resume,0.6606523394584656
+email,memo,0.6815586090087891
+handwritten,letter,0.6183469295501709
+handwritten,form,0.5932356715202332
+handwritten,email,0.6592729091644287
+handwritten,advertisement,0.569710910320282
+handwritten,scientific report,0.5724844336509705
+handwritten,scientific publication,0.5901618599891663
+handwritten,specification,0.5100929141044617
+handwritten,file folder,0.6067166924476624
+handwritten,news article,0.5882728099822998
+handwritten,budget,0.546180009841919
+handwritten,invoice,0.5873871445655823
+handwritten,presentation,0.5858430862426758
+handwritten,questionnaire,0.5587562322616577
+handwritten,resume,0.5872761011123657
+handwritten,memo,0.6116278171539307
+advertisement,letter,0.5707101225852966
+advertisement,form,0.5492579340934753
+advertisement,email,0.6061352491378784
+advertisement,handwritten,0.569710910320282
+advertisement,scientific report,0.5354401469230652
+advertisement,scientific publication,0.5672200322151184
+advertisement,specification,0.47871294617652893
+advertisement,file folder,0.5682495832443237
+advertisement,news article,0.584538996219635
+advertisement,budget,0.5132191181182861
+advertisement,invoice,0.5563016533851624
+advertisement,presentation,0.5474478006362915
+advertisement,questionnaire,0.523919939994812
+advertisement,resume,0.5417250990867615
+advertisement,memo,0.5648075342178345
+scientific report,letter,0.6251165270805359
+scientific report,form,0.5856707096099854
+scientific report,email,0.6400583386421204
+scientific report,handwritten,0.5724844336509705
+scientific report,advertisement,0.5354401469230652
+scientific report,scientific publication,0.5948802828788757
+scientific report,specification,0.5128843784332275
+scientific report,file folder,0.5696057081222534
+scientific report,news article,0.5666751265525818
+scientific report,budget,0.5449795126914978
+scientific report,invoice,0.5783113241195679
+scientific report,presentation,0.589339017868042
+scientific report,questionnaire,0.5583800673484802
+scientific report,resume,0.5914247632026672
+scientific report,memo,0.6231213212013245
+scientific publication,letter,0.6334356665611267
+scientific publication,form,0.5913025736808777
+scientific publication,email,0.662961483001709
+scientific publication,handwritten,0.5901618599891663
+scientific publication,advertisement,0.5672200322151184
+scientific publication,scientific report,0.5948802828788757
+scientific publication,specification,0.5211077928543091
+scientific publication,file folder,0.5829576253890991
+scientific publication,news article,0.6454867124557495
+scientific publication,budget,0.5486768484115601
+scientific publication,invoice,0.5847072601318359
+scientific publication,presentation,0.6087354421615601
+scientific publication,questionnaire,0.5662378072738647
+scientific publication,resume,0.620136022567749
+scientific publication,memo,0.6242173910140991
+specification,letter,0.5431464910507202
+specification,form,0.5304250121116638
+specification,email,0.5578607320785522
+specification,handwritten,0.5100929141044617
+specification,advertisement,0.47871294617652893
+specification,scientific report,0.5128843784332275
+specification,scientific publication,0.5211077928543091
+specification,file folder,0.4959107041358948
+specification,news article,0.5030472874641418
+specification,budget,0.49370309710502625
+specification,invoice,0.5299414396286011
+specification,presentation,0.507154643535614
+specification,questionnaire,0.5104520916938782
+specification,resume,0.5299155712127686
+specification,memo,0.5460942387580872
+file folder,letter,0.5933434367179871
+file folder,form,0.5789587497711182
+file folder,email,0.7043502330780029
+file folder,handwritten,0.6067166924476624
+file folder,advertisement,0.5682495832443237
+file folder,scientific report,0.5696057081222534
+file folder,scientific publication,0.5829576253890991
+file folder,specification,0.4959107041358948
+file folder,news article,0.5728504061698914
+file folder,budget,0.549261212348938
+file folder,invoice,0.5789961218833923
+file folder,presentation,0.5947952270507812
+file folder,questionnaire,0.5461679697036743
+file folder,resume,0.5659663677215576
+file folder,memo,0.5938572287559509
+news article,letter,0.6122908592224121
+news article,form,0.5714969038963318
+news article,email,0.640723705291748
+news article,handwritten,0.5882728099822998
+news article,advertisement,0.584538996219635
+news article,scientific report,0.5666751265525818
+news article,scientific publication,0.6454867124557495
+news article,specification,0.5030472874641418
+news article,file folder,0.5728504061698914
+news article,budget,0.533326268196106
+news article,invoice,0.5707935690879822
+news article,presentation,0.5877989530563354
+news article,questionnaire,0.5452552437782288
+news article,resume,0.5913144946098328
+news article,memo,0.6051375269889832
+budget,letter,0.5678080320358276
+budget,form,0.5630419850349426
+budget,email,0.605453372001648
+budget,handwritten,0.546180009841919
+budget,advertisement,0.5132191181182861
+budget,scientific report,0.5449795126914978
+budget,scientific publication,0.5486768484115601
+budget,specification,0.49370309710502625
+budget,file folder,0.549261212348938
+budget,news article,0.533326268196106
+budget,invoice,0.5669963359832764
+budget,presentation,0.5462576150894165
+budget,questionnaire,0.5292484164237976
+budget,resume,0.5493204593658447
+budget,memo,0.5700628757476807
+invoice,letter,0.6140902042388916
+invoice,form,0.6110743284225464
+invoice,email,0.6414969563484192
+invoice,handwritten,0.5873871445655823
+invoice,advertisement,0.5563016533851624
+invoice,scientific report,0.5783113241195679
+invoice,scientific publication,0.5847072601318359
+invoice,specification,0.5299414396286011
+invoice,file folder,0.5789961218833923
+invoice,news article,0.5707935690879822
+invoice,budget,0.5669963359832764
+invoice,presentation,0.5736439228057861
+invoice,questionnaire,0.5662639141082764
+invoice,resume,0.5841647386550903
+invoice,memo,0.6125537157058716
+presentation,letter,0.6332848072052002
+presentation,form,0.5834322571754456
+presentation,email,0.6582608222961426
+presentation,handwritten,0.5858430862426758
+presentation,advertisement,0.5474478006362915
+presentation,scientific report,0.589339017868042
+presentation,scientific publication,0.6087354421615601
+presentation,specification,0.507154643535614
+presentation,file folder,0.5947952270507812
+presentation,news article,0.5877989530563354
+presentation,budget,0.5462576150894165
+presentation,invoice,0.5736439228057861
+presentation,questionnaire,0.5567306280136108
+presentation,resume,0.6006765365600586
+presentation,memo,0.6284281015396118
+questionnaire,letter,0.5951840281486511
+questionnaire,form,0.5836363434791565
+questionnaire,email,0.6171932220458984
+questionnaire,handwritten,0.5587562322616577
+questionnaire,advertisement,0.523919939994812
+questionnaire,scientific report,0.5583800673484802
+questionnaire,scientific publication,0.5662378072738647
+questionnaire,specification,0.5104520916938782
+questionnaire,file folder,0.5461679697036743
+questionnaire,news article,0.5452552437782288
+questionnaire,budget,0.5292484164237976
+questionnaire,invoice,0.5662639141082764
+questionnaire,presentation,0.5567306280136108
+questionnaire,resume,0.5696935057640076
+questionnaire,memo,0.5987828373908997
+resume,letter,0.6450578570365906
+resume,form,0.5935300588607788
+resume,email,0.6606523394584656
+resume,handwritten,0.5872761011123657
+resume,advertisement,0.5417250990867615
+resume,scientific report,0.5914247632026672
+resume,scientific publication,0.620136022567749
+resume,specification,0.5299155712127686
+resume,file folder,0.5659663677215576
+resume,news article,0.5913144946098328
+resume,budget,0.5493204593658447
+resume,invoice,0.5841647386550903
+resume,presentation,0.6006765365600586
+resume,questionnaire,0.5696935057640076
+resume,memo,0.6422521471977234
+memo,letter,0.7037961483001709
+memo,form,0.622814953327179
+memo,email,0.6815586090087891
+memo,handwritten,0.6116278171539307
+memo,advertisement,0.5648075342178345
+memo,scientific report,0.6231213212013245
+memo,scientific publication,0.6242173910140991
+memo,specification,0.5460942387580872
+memo,file folder,0.5938572287559509
+memo,news article,0.6051375269889832
+memo,budget,0.5700628757476807
+memo,invoice,0.6125537157058716
+memo,presentation,0.6284281015396118
+memo,questionnaire,0.5987828373908997
+memo,resume,0.6422521471977234

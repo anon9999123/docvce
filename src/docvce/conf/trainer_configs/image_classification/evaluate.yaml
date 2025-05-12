@@ -1,0 +1,61 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners.atria_model_evaluator.AtriaModelEvaluator
+_zen_exclude:
+- hydra
+- test_run
+- experiment_name
+- image_size
+- gray_to_rgb
+- backend
+- n_devices
+- classifier_checkpoint_path
+- classifier_state_dict_path
+- train_batch_size
+- eval_batch_size
+defaults:
+# defines the dataset
+- override /data_module@data_module: ${oc.env:TASK}/${oc.env:DATASET}_override_custom
+# defines the task module which is image_classification
+- override /task_module@task_module: image_classification
+# defines the model builder dict which maps to timm library
+- override /torch_model_builder@task_module.torch_model_builder: timm
+# defines the test engine config
+- override /engine@test_engine: image_classification_test_engine
+- _self_
+
+task_module:
+  checkpoint_configs:
+    - checkpoint_path: ${classifier_checkpoint_path}
+      checkpoint_state_dict_path: ${classifier_state_dict_path}
+      model_state_dict_path: null
+      load_checkpoint_strict: false
+
+test_engine:
+  test_run: ${test_run}
+
+output_dir: ./output
+seed: 42
+deterministic: false
+backend: nccl
+n_devices: 1
+
+# additional override params that are should go inside _zen_exclude
+test_run: false
+experiment_name: test_classifier
+image_size: 256
+gray_to_rgb: false
+classifier_checkpoint_path: ???
+classifier_state_dict_path: ???
+
+hydra:
+  run:
+    dir: "${output_dir}/atria_trainer/\
+          ${resolve_dir_name:${data_module.dataset_name}}/\
+          ${resolve_dir_name:${task_module._target_}}/\
+          ${task_module.torch_model_builder.model_name}/\
+          ${experiment_name}/"
+          # ${now:%Y-%m-%d}/${now:%H-%M-%S}"
+  output_subdir: hydra
+  job:
+    chdir: false

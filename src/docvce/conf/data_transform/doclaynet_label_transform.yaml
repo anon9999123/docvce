@@ -1,0 +1,3 @@
+_target_: docvce.transforms.doclaynet_label_transform.DoclayNetLabelTransform
+labels: ???
+key: null

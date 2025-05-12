@@ -1,0 +1,126 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners.atria_model_evaluator.AtriaModelEvaluator
+_zen_exclude:
+- hydra
+- test_run
+- experiment_name
+- image_size
+- gray_to_rgb
+- diffusion_model_checkpoint_path
+- classifier_checkpoint_path
+- classifier_state_dict_path
+- sampling_type
+- runtime_output_dir
+- start_time_step
+- target_query_labels
+- use_logits
+- train_batch_size
+- eval_batch_size
+- classifier_output_name
+defaults:
+# defines the image transformations
+- /metric@test_engine.metrics.cf_eval_metric: cf_eval_metric
+# defines the dataset
+- override /data_module@data_module: ${oc.env:TASK}/${oc.env:DATASET}_override_custom
+# defines the task module which is unconditional diffusion
+- override /task_module@task_module: counterfactual_latent_diffusion
+# defines the model builder dict which maps reverse_diffusion_model -> diffusers library
+- override /torch_model_builder@task_module.torch_model_builder.reverse_diffusion_model: diffusers
+- override /torch_model_builder@task_module.torch_model_builder.vae: local
+# defines the model builder dict which maps classifier -> local library
+- override /torch_model_builder@task_module.torch_model_builder.classifier: local
+# defines the test engine config
+- override /engine@test_engine: default_test_engine
+- _self_
+
+data_module:
+  max_test_samples: 10000
+
+task_module:
+  torch_model_builder:
+    vae:
+      model_name: atria.models.autoencoding.compvis_vae.CompvisAutoencoderKL
+      pretrained: false
+      is_frozen: true
+      strict: false
+    reverse_diffusion_model:
+      model_task: diffusion
+    classifier:
+      model_task: image_classification
+      pretrained: False
+  checkpoint_configs:
+    - checkpoint_path: pretrained_models/klf4_pretrained_iitcidp_146000.pt
+      # checkpoint_state_dict_path: task_module.model.encoder_decoder_model
+      checkpoint_state_dict_path: ema_model.encoder_decoder_model
+      model_state_dict_path: "non_trainable_models.vae"
+      load_checkpoint_strict: True
+    - checkpoint_path: ${diffusion_model_checkpoint_path}
+      # checkpoint_state_dict_path: "task_module.trainable_models.reverse_diffusion_model"
+      checkpoint_state_dict_path: "ema_model.reverse_diffusion_model"
+      model_state_dict_path: "trainable_models.reverse_diffusion_model"
+      load_checkpoint_strict: true
+    - checkpoint_path: ${classifier_checkpoint_path}
+      checkpoint_state_dict_path: ${classifier_state_dict_path}
+      model_state_dict_path: "trainable_models.classifier"
+      load_checkpoint_strict: false
+  diffusion_steps: 1000
+  inference_diffusion_steps: 200
+  enable_class_conditioning: true
+  use_cfg: true
+  use_precomputed_latents_if_available: false
+  features_scale_factor: 0.11908724904060364
+  sampling_type: guided_ddpm
+  # target_query_labels: 3
+  # target_query_labels_path: class_similarity/top_five_closest_classes.csv
+  # target_query_labels_path: class_similarity/top_five_closest_classes.csv
+  start_timestep: 100
+  guidance_scale: 1.5
+  use_logits: false
+  # 0.6 vs 0.2 combination drives more  towrads class. 0.6 vs 0.3 makes it better
+  # but sometimes too much close to original sample theres no way to detemrin ethe optimal weights
+  # for fully VIVID changes use target_query_labels: 3, start_timestep: 100, guidance_scale: 1.0, classifier_gradient_weight: 0.8, distance_gradient_weight: 0.2
+  # for better vivid changes start_timestep: 80 with same settings
+  # thse are with use_latent_space_distance: true
+  classifier_gradient_weight: 0.7
+  distance_gradient_weight: 0.3
+  noise_gradient_weight: 0.0
+  enable_gradients_renormalization: true
+  use_latent_space_distance: true
+  use_cfg_projection: true
+  cone_projection_type: chunked_zero
+  cone_projection_angle_threshold: 45.0
+  cone_projection_chunk_size: 1
+
+test_engine:
+  test_run: ${test_run}
+  metrics:
+    cf_eval_metric:
+      real_output_path: ${output_dir}/counterfactual_latent_diffusion/${resolve_dir_name:${data_module.dataset_name}}/${classifier_output_name}/real_samples/
+      cf_output_path: ${runtime_output_dir}
+
+output_dir: ./output
+seed: 6
+deterministic: false
+backend: nccl
+n_devices: 1
+train_batch_size: 1
+eval_batch_size: 16
+
+# additional override params that are should go inside _zen_exclude
+test_run: false
+image_size: 256
+gray_to_rgb: True
+diffusion_model_checkpoint_path: ???
+classifier_checkpoint_path: ???
+classifier_state_dict_path: ???
+classifier_output_name: ???
+experiment_name: ${task_module.sampling_type}-${task_module.start_timestep}-${task_module.guidance_scale}-${task_module.classifier_gradient_weight}-${task_module.distance_gradient_weight}-${task_module.cone_projection_type}-${task_module.use_cfg_projection}
+runtime_output_dir: "${output_dir}/counterfactual_latent_diffusion/${resolve_dir_name:${data_module.dataset_name}}/${classifier_output_name}/${experiment_name}"
+
+hydra:
+  run:
+    dir: ${runtime_output_dir}
+  output_subdir: hydra
+  job:
+    chdir: false

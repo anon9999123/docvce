@@ -1,0 +1,5 @@
+_target_: docvce.transforms.hocr_extract.HocrExtractTransform
+lang: null
+config: "--psm 1 --oem 1"
+extension: hocr
+key: null

@@ -1,0 +1,25 @@
+defaults:
+# take the defaults from the atria/data_module/hugging_face
+- /data_module/huggingface@_here_
+- _self_
+
+dataset_name: ds4sd/DocLayNet
+dataset_config_name: "2022.08"
+dataset_cacher:
+  cache_dir: ${data_module.dataset_dir}/.atria/
+caching_enabled: true
+train_dataloader_builder:
+  batch_size: 2
+evaluation_dataloader_builder:
+  batch_size: 2
+dataset_output_key_map:
+  image: image
+  label: doc_category
+  __key__: __key__
+data_labels_override:
+  - financial_reports
+  - scientific_articles
+  - laws_and_regulations
+  - government_tenders
+  - manuals
+  - patents

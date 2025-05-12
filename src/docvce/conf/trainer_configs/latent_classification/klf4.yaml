@@ -1,0 +1,129 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners._atria_trainer.AtriaTrainer
+_zen_exclude:
+- hydra
+- test_run
+- experiment_name
+- image_size
+- gray_to_rgb
+- sampling_type
+- runtime_output_dir
+- start_time_step
+- target_query_labels
+- use_logits
+- train_batch_size
+- eval_batch_size
+- backend
+- n_devices
+- features_key
+defaults:
+# defines the dataset
+- override /data_module@data_module: ${oc.env:TASK}/${oc.env:DATASET}_override_custom_only_features
+# defines the task module which is unconditional diffusion
+- override /task_module@task_module: latent_classification
+# defines the model builder dict which maps reverse_diffusion_model -> diffusers library
+- override /torch_model_builder@task_module.torch_model_builder.vae: local
+# defines the model builder dict which maps classifier -> local library
+- override /torch_model_builder@task_module.torch_model_builder.classifier: local
+# defines the training engine config
+- override /engine@training_engine: default_training_engine
+# defines the validation engine config
+- override /engine@validation_engine: image_classification_validation_engine
+# defines the test engine config
+- override /engine@test_engine: image_classification_test_engine
+# defines the optimizer
+- override /optimizer@training_engine.optimizers: adam
+# defines the learning rate scheduler
+- override /lr_scheduler@training_engine.lr_schedulers: cosine_annealing_lr
+- _self_
+
+task_module:
+  torch_model_builder:
+    vae:
+      model_name: atria.models.autoencoding.compvis_vae.CompvisAutoencoderKL
+      pretrained: false
+      is_frozen: true
+      strict: false
+    classifier:
+      model_task: image_classification
+      pretrained: True
+  checkpoint_configs:
+    - checkpoint_path: pretrained_models/klf4_pretrained_iitcidp_146000.pt
+      # checkpoint_state_dict_path: task_module.model.encoder_decoder_model
+      checkpoint_state_dict_path: ema_model.encoder_decoder_model
+      model_state_dict_path: "non_trainable_models.vae"
+      load_checkpoint_strict: True
+  use_precomputed_latents_if_available: true
+  features_scale_factor: 0.11908724904060364
+
+training_engine:
+  max_epochs: 40
+  engine_step:
+    non_blocking_tensor_conv: true
+    with_amp: true
+  gradient_config:
+    gradient_accumulation_steps: 1
+  logging:
+    refresh_rate: 10
+    profile_time: false
+  model_ema_config:
+    enabled: false
+    momentum: 0.0001
+    update_every: 1
+  model_checkpoint_config:
+    dir: checkpoints
+    n_saved: 1
+    n_best_saved: 1
+    monitored_metric: val/loss
+    mode: min
+    name_prefix: ''
+    save_weights_only: false
+    load_weights_only: false
+    every_n_steps: 4500
+    every_n_epochs: null
+    load_best_checkpoint_resume: false
+    resume_from_checkpoint: true
+    resume_checkpoint_file: null
+  test_run: ${test_run}
+  optimizers:
+    lr: 1.0e-4
+
+validation_engine:
+  validate_on_start: false
+  validate_every_n_epochs: 1
+  use_ema_for_val: false
+  test_run: ${test_run}
+
+test_engine:
+  test_run: ${test_run}
+
+output_dir: ./output
+seed: 42
+deterministic: false
+backend: nccl
+n_devices: 1
+do_train: true
+do_validation: true
+do_visualization: false
+do_test: true
+train_batch_size: 256
+eval_batch_size: 256
+
+# additional override params that are should go inside _zen_exclude
+test_run: false
+experiment_name: latent_classification_convnext_tiny
+image_size: 256
+gray_to_rgb: false
+features_key: klf4_pretrained_iitcidp_146000
+
+hydra:
+  run:
+    dir: "${output_dir}/atria_trainer/\
+          ${resolve_dir_name:${data_module.dataset_name}}/\
+          ${resolve_dir_name:${task_module._target_}}/\
+          ${experiment_name}/"
+          # ${now:%Y-%m-%d}/${now:%H-%M-%S}"
+  output_subdir: hydra
+  job:
+    chdir: false

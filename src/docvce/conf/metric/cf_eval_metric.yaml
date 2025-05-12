@@ -1,0 +1,6 @@
+_target_: docvce.metrics.cf_eval_metric.CounterfactualEvaluationMetric
+_partial_: true
+output_transform:
+  path: docvce.metrics.cf_eval_metric.identity
+  _target_: hydra_zen.funcs.get_obj
+device: cpu

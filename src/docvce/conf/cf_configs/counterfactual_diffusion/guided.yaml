@@ -1,0 +1,88 @@
+# @package __global__
+_target_: hydra_zen.funcs.zen_processing
+_zen_target: atria.core.task_runners.atria_model_evaluator.AtriaModelEvaluator
+_zen_exclude:
+- hydra
+- test_run
+- experiment_name
+- image_size
+- diffusion_model_checkpoint_path
+- classifier_checkpoint_path
+- sampling_type
+- use_classifier_guidance
+- runtime_output_dir
+- start_time_step
+- target_query_labels
+- use_logits
+defaults:
+# defines the image transformations
+- /metric@test_engine.metrics.cf_eval_metric: cf_eval_metric
+# defines the dataset
+- override /data_module@data_module: ${oc.env:TASK}/${oc.env:DATASET}_override_custom
+# defines the task module which is unconditional diffusion
+- override /task_module@task_module: counterfactual_diffusion
+# defines the model builder dict which maps reverse_diffusion_model -> diffusers library
+- override /torch_model_builder@task_module.torch_model_builder.reverse_diffusion_model: diffusers
+# defines the model builder dict which maps classifier -> local library
+- override /torch_model_builder@task_module.torch_model_builder.classifier: local
+# defines the test engine config
+- override /engine@test_engine: default_test_engine
+- _self_
+
+data_module:
+  max_test_samples: 12
+
+task_module:
+  diffusion_steps: 1000
+  inference_diffusion_steps: 200
+  sampling_type: ${sampling_type}
+  target_query_labels: 2
+  use_logits: False
+  start_timestep: 140
+  classifier_gradient_weights:
+    - 5.0
+  distance_gradient_weight: 3.0
+  noise_gradient_weight: 0.0
+  guidance_scale: 3.0
+  torch_model_builder:
+    reverse_diffusion_model:
+      model_task: diffusion
+    classifier:
+      model_task: image_classification
+      pretrained: False
+  checkpoint_configs:
+    - checkpoint_path: ${diffusion_model_checkpoint_path}
+      checkpoint_state_dict_path: "ema_model.reverse_diffusion_model"
+      model_state_dict_path: "trainable_models.reverse_diffusion_model"
+      load_checkpoint_strict: true
+    - checkpoint_path: ${classifier_checkpoint_path}
+      checkpoint_state_dict_path: "task_module.model"
+      model_state_dict_path: "trainable_models.classifier"
+      load_checkpoint_strict: true
+
+test_engine:
+  test_run: ${test_run}
+  metrics:
+    cf_eval_metric:
+      output_path: ${runtime_output_dir}
+
+output_dir: ./output
+seed: 42
+deterministic: false
+backend: nccl
+n_devices: 1
+
+# additional override params that are should go inside _zen_exclude
+test_run: true
+image_size: 256
+diffusion_model_checkpoint_path: ???
+classifier_checkpoint_path: ???
+sampling_type: guided_ddim # guided_full_grads
+runtime_output_dir: "${output_dir}/${resolve_dir_name:${data_module.dataset_name}}/${sampling_type}"
+
+hydra:
+  run:
+    dir: ${runtime_output_dir}
+  output_subdir: hydra
+  job:
+    chdir: false
